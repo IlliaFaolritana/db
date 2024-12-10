@@ -89,3 +89,33 @@ OR (MONTH(er.ER_date) = MONTH(CURDATE()) AND YEAR(er.ER_date) = YEAR(CURDATE()))
 GROUP BY d.department_id, d.department_name  
 ORDER BY total_expenses DESC, d.department_id;
 -- Визначить відділи з найбільшими витратами за минулі два місяця
+
+-- 2)---------------------------------------------------------------------------------------------------------------------------------
+
+CREATE VIEW department_month_expenses AS
+SELECT d.department_id, d.department_name,
+    SUM(er.ER_total) AS total_expenses
+FROM expense_reports er
+JOIN departments d ON d.department_id = er.department_id
+WHERE MONTH(er.ER_date) = MONTH(CURDATE()) AND YEAR(er.ER_date) = YEAR(CURDATE())
+GROUP BY d.department_id, d.department_name;
+-- View для відслідковування місячних витрат відділів
+
+CREATE VIEW high_expenses_departments AS
+SELECT *
+FROM department_month_expenses
+WHERE total_expenses > 1000;
+-- View для відслідковування найдорожчих відділів
+
+ALTER VIEW department_month_expenses AS
+SELECT d.department_id, d.department_name,
+    SUM(er.ER_total) AS total_expenses,
+    COUNT(er.ER_id) AS operations_quantity
+FROM expense_reports er
+JOIN departments d ON d.department_id = er.department_id
+WHERE MONTH(er.ER_date) = MONTH(CURDATE()) AND YEAR(er.ER_date) = YEAR(CURDATE())
+GROUP BY d.department_id, d.department_name;
+-- Додати кількість здійснених операцій кожним відділом
+
+
+
